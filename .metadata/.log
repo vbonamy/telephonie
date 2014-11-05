@@ -1,0 +1,30 @@
+!SESSION 2014-11-05 12:07:28.301 -----------------------------------------------
+eclipse.buildId=3.6.0.201407092312-RELEASE-e38
+java.version=1.8.0_20
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86, WS=gtk, NL=fr_FR
+Framework arguments:  -product org.springsource.sts.ide
+Command-line arguments:  -os linux -ws gtk -arch x86 -product org.springsource.sts.ide
+
+!ENTRY org.eclipse.ui.workbench 2 0 2014-11-05 12:08:15.398
+!MESSAGE A handler conflict occurred.  This may disable some commands.
+!SUBENTRY 1 org.eclipse.ui.workbench 2 0 2014-11-05 12:08:15.398
+!MESSAGE Conflict for 'AUTOGEN:::org.springsource.ide.eclipse.commons.launch.actionSet/org.springsource.ide.eclipse.commons.launch.relaunch.action':
+HandlerActivation(commandId=AUTOGEN:::org.springsource.ide.eclipse.commons.launch.actionSet/org.springsource.ide.eclipse.commons.launch.relaunch.action,
+	handler=ActionDelegateHandlerProxy(null,org.springsource.ide.eclipse.commons.ui.launch.StopProcessPullDownToolbarDelegate),
+	expression=AndExpression(ActionSetExpression(org.springsource.ide.eclipse.commons.launch.actionSet,org.eclipse.ui.internal.WorkbenchWindow@226788),WorkbenchWindowExpression(org.eclipse.ui.internal.WorkbenchWindow@226788)),sourcePriority=16640)
+HandlerActivation(commandId=AUTOGEN:::org.springsource.ide.eclipse.commons.launch.actionSet/org.springsource.ide.eclipse.commons.launch.relaunch.action,
+	handler=ActionDelegateHandlerProxy(null,org.springsource.ide.eclipse.commons.ui.launch.RelaunchProcessPullDownToolbarDelegate),
+	expression=AndExpression(ActionSetExpression(org.springsource.ide.eclipse.commons.launch.actionSet,org.eclipse.ui.internal.WorkbenchWindow@226788),WorkbenchWindowExpression(org.eclipse.ui.internal.WorkbenchWindow@226788)),sourcePriority=16640)
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2014-11-05 12:09:26.265
+!MESSAGE CatalogItem org.eclipse.m2e.discovery.lifecyclemapping.m2e-egit does not contain lifecycle mapping metadata
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2014-11-05 12:09:26.278
+!MESSAGE CatalogItem org.eclipse.m2e.discovery.lifecyclemapping.m2e-subversive does not contain lifecycle mapping metadata
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2014-11-05 12:09:26.278
+!MESSAGE CatalogItem org.eclipse.m2e.discovery.lifecyclemapping.m2e-subclipse does not contain lifecycle mapping metadata
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2014-11-05 12:09:26.290
+!MESSAGE CatalogItem org.eclipse.xtext.m2e.xtextConfigurator does not contain lifecycle mapping metadata
