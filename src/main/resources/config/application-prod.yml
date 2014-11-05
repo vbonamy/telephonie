@@ -10,7 +10,7 @@ spring:
         databaseName: telephonie
         serverName: localhost
         username: telephonie
-        password: 
+        password: esup
 
     jpa:
         database-platform: org.hibernate.dialect.PostgreSQLDialect
