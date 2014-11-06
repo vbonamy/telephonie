@@ -4,3 +4,5 @@ system;ROLE_USER
 admin;ROLE_ADMIN
 admin;ROLE_USER
 user;ROLE_USER
+bonamvin;ROLE_USER
+bonamvin;ROLE_ADMIN

@@ -1,10 +1,15 @@
 package fr.univrouen.telephonie.config;
 
-import fr.univrouen.telephonie.security.*;
+import javax.inject.Inject;
+
+import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-
+import org.springframework.security.cas.ServiceProperties;
+import org.springframework.security.cas.authentication.CasAuthenticationProvider;
+import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
+import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
@@ -12,12 +17,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 
-import javax.inject.Inject;
+import fr.univrouen.telephonie.security.AjaxAuthenticationFailureHandler;
+import fr.univrouen.telephonie.security.AjaxAuthenticationSuccessHandler;
+import fr.univrouen.telephonie.security.AjaxLogoutSuccessHandler;
+import fr.univrouen.telephonie.security.AuthoritiesConstants;
 
 @Configuration
 @EnableWebSecurity
@@ -36,25 +41,52 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
 
     @Inject
-    private Http401UnauthorizedEntryPoint authenticationEntryPoint;
-
-    @Inject
-    private UserDetailsService userDetailsService;
-
-    @Inject
-    private RememberMeServices rememberMeServices;
+    private AuthenticationUserDetailsService userDetailsService;
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public ServiceProperties serviceProperties() {
+        ServiceProperties serviceProperties = new ServiceProperties();
+        serviceProperties.setService(env.getProperty("cas.serviceUrl"));
+        serviceProperties.setSendRenew(false);
+        return serviceProperties;
+    }
+
+    @Bean
+    public CasAuthenticationProvider casAuthenticationProvider() {
+        CasAuthenticationProvider casAuthenticationProvider = new CasAuthenticationProvider();
+        casAuthenticationProvider.setAuthenticationUserDetailsService((AuthenticationUserDetailsService)userDetailsService);
+        casAuthenticationProvider.setServiceProperties(serviceProperties());
+        casAuthenticationProvider.setTicketValidator(cas20ServiceTicketValidator());
+        casAuthenticationProvider.setKey("an_id_for_this_auth_provider_only");
+        return casAuthenticationProvider;
+    }
+
+    @Bean
+    public Cas20ServiceTicketValidator cas20ServiceTicketValidator() {
+        return new Cas20ServiceTicketValidator(env.getProperty("cas.url.prefix"));
+    }
+
+    @Bean
+    public CasAuthenticationFilter casAuthenticationFilter() throws Exception {
+        CasAuthenticationFilter casAuthenticationFilter = new CasAuthenticationFilter();
+        casAuthenticationFilter.setAuthenticationManager(authenticationManager());
+        return casAuthenticationFilter;
+    }
+
+    @Bean
+    public CasAuthenticationEntryPoint casAuthenticationEntryPoint() {
+        CasAuthenticationEntryPoint casAuthenticationEntryPoint = new CasAuthenticationEntryPoint();
+        casAuthenticationEntryPoint.setLoginUrl(env.getProperty("cas.url.login"));
+        casAuthenticationEntryPoint.setServiceProperties(serviceProperties());
+        return casAuthenticationEntryPoint;
     }
 
     @Inject
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-            .userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder());
+        auth.authenticationProvider(casAuthenticationProvider());
     }
+
+    
 
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -69,25 +101,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/swagger-ui/**")
             .antMatchers("/console/**");
     }
-    
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
             .exceptionHandling()
-                .authenticationEntryPoint(authenticationEntryPoint)
+                .authenticationEntryPoint(casAuthenticationEntryPoint())
                 .and()
-            .rememberMe()
-                .rememberMeServices(rememberMeServices)
-                .key(env.getProperty("jhipster.security.rememberme.key"))
-                .and()
-            .formLogin()
-                .loginProcessingUrl("/app/authentication")
-                .successHandler(ajaxAuthenticationSuccessHandler)
-                .failureHandler(ajaxAuthenticationFailureHandler)
-                .usernameParameter("j_username")
-                .passwordParameter("j_password")
-                .permitAll()
-                .and()
+            .addFilter(casAuthenticationFilter())   
             .logout()
                 .logoutUrl("/app/logout")
                 .logoutSuccessHandler(ajaxLogoutSuccessHandler)
@@ -103,6 +124,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/app/rest/activate").permitAll()
                 .antMatchers("/app/rest/authenticate").permitAll()
                 .antMatchers("/app/rest/logs/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/cas").authenticated()
                 .antMatchers("/app/**").authenticated()
                 .antMatchers("/metrics/**").hasAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers("/health/**").hasAuthority(AuthoritiesConstants.ADMIN)
@@ -116,7 +138,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/trace/**").hasAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers("/api-docs/**").hasAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers("/protected/**").authenticated();
-
     }
     
     

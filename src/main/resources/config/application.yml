@@ -34,3 +34,10 @@ swagger:
     contact:
     license: Apache 2.0
     licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.html
+
+cas:
+    url:
+        prefix: https://cas.univ-rouen.fr
+        login: https://cas.univ-rouen.fr/login
+    serviceUrl: http://localhost:8080/j_spring_cas_security_check
+        

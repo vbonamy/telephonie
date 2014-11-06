@@ -31,10 +31,7 @@ import java.util.Set;
 public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
-
-    @Inject
-    private PasswordEncoder passwordEncoder;
-
+    
     @Inject
     private UserRepository userRepository;
 
@@ -63,7 +60,7 @@ public class UserService {
         User newUser = new User();
         Authority authority = authorityRepository.findOne("ROLE_USER");
         Set<Authority> authorities = new HashSet<>();
-        String encryptedPassword = passwordEncoder.encode(password);
+        String encryptedPassword = "";
         newUser.setLogin(login);
         // new user gets initially a generated password
         newUser.setPassword(encryptedPassword);
@@ -93,7 +90,7 @@ public class UserService {
 
     public void changePassword(String password) {
         User currentUser = userRepository.findOne(SecurityUtils.getCurrentLogin());
-        String encryptedPassword = passwordEncoder.encode(password);
+        String encryptedPassword = "";
         currentUser.setPassword(encryptedPassword);
         userRepository.save(currentUser);
         log.debug("Changed password for User: {}", currentUser);
